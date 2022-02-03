@@ -42,6 +42,7 @@ import com.google.ar.core.examples.java.common.samplerender.Shader
 import com.google.ar.core.examples.java.common.samplerender.Texture
 import com.google.ar.core.examples.java.common.samplerender.VertexBuffer
 import com.google.ar.core.examples.java.common.samplerender.arcore.BackgroundRenderer
+import com.google.ar.core.examples.java.common.samplerender.arcore.LineRenderer
 import com.google.ar.core.examples.java.common.samplerender.arcore.PlaneRenderer
 import com.google.ar.core.examples.java.common.samplerender.arcore.SpecularCubemapFilter
 import com.google.ar.core.exceptions.CameraNotAvailableException
@@ -91,6 +92,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
   lateinit var render: SampleRender
   lateinit var planeRenderer: PlaneRenderer
   lateinit var backgroundRenderer: BackgroundRenderer
+  lateinit var lineRenderer: LineRenderer
   lateinit var virtualSceneFramebuffer: Framebuffer
   var hasSetTextureNames = false
 
@@ -147,10 +149,11 @@ class HelloArRenderer(val activity: HelloArActivity) :
     // Prepare the rendering objects.
     // This involves reading shaders and 3D model files, so may throw an IOException.
     try {
-      planeRenderer = PlaneRenderer(render)
+
+      //planeRenderer = PlaneRenderer(render)
       backgroundRenderer = BackgroundRenderer(render)
       virtualSceneFramebuffer = Framebuffer(render, /*width=*/ 1, /*height=*/ 1)
-
+      /*
       cubemapFilter =
         SpecularCubemapFilter(render, CUBEMAP_RESOLUTION, CUBEMAP_NUMBER_OF_IMPORTANCE_SAMPLES)
       // Load environmental lighting values lookup table
@@ -185,6 +188,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
         buffer
       )
       GLError.maybeThrowGLException("Failed to populate DFG texture", "glTexImage2D")
+      */
 
       // Point cloud
       pointCloudShader =
@@ -204,7 +208,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
       pointCloudMesh =
         Mesh(render, Mesh.PrimitiveMode.POINTS, /*indexBuffer=*/ null, pointCloudVertexBuffers)
 
-      // Virtual object to render (ARCore pawn)
+      /*// Virtual object to render (ARCore pawn)
       virtualObjectAlbedoTexture =
         Texture.createFromAsset(
           render,
@@ -239,7 +243,9 @@ class HelloArRenderer(val activity: HelloArActivity) :
           .setTexture("u_AlbedoTexture", virtualObjectAlbedoTexture)
           .setTexture("u_RoughnessMetallicAmbientOcclusionTexture", virtualObjectPbrTexture)
           .setTexture("u_Cubemap", cubemapFilter.filteredCubemapTexture)
-          .setTexture("u_DfgTexture", dfgTexture)
+          .setTexture("u_DfgTexture", dfgTexture)*/
+
+      lineRenderer = LineRenderer(render)
     } catch (e: IOException) {
       Log.e(TAG, "Failed to read a required asset file", e)
       showError("Failed to read a required asset file: $e")
@@ -367,6 +373,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
       render.draw(pointCloudMesh, pointCloudShader)
     }
 
+    /*
     // Visualize planes.
     planeRenderer.drawPlanes(
       render,
@@ -374,11 +381,12 @@ class HelloArRenderer(val activity: HelloArActivity) :
       camera.displayOrientedPose,
       projectionMatrix
     )
+     */
 
     // -- Draw occluded virtual objects
 
     // Update lighting parameters in the shader
-    updateLightEstimation(frame.lightEstimate, viewMatrix)
+    //updateLightEstimation(frame.lightEstimate, viewMatrix)
 
     // Visualize anchors created by touch.
     render.clear(virtualSceneFramebuffer, 0f, 0f, 0f, 0f)
@@ -392,6 +400,12 @@ class HelloArRenderer(val activity: HelloArActivity) :
       Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
       Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
 
+      //Draw line
+      //lineRenderer.lineShader.setMat4("u_ModelView", modelViewMatrix)
+      lineRenderer.lineShader.setMat4("u_MVPMatrix", modelViewProjectionMatrix)
+      lineRenderer.drawLine(render, virtualSceneFramebuffer)
+
+      /*
       // Update shader properties and draw
       virtualObjectShader.setMat4("u_ModelView", modelViewMatrix)
       virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
@@ -404,7 +418,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
           virtualObjectAlbedoTexture
         }
       virtualObjectShader.setTexture("u_AlbedoTexture", texture)
-      render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer)
+      render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer)*/
     }
 
     // Compose the virtual scene with the background.
