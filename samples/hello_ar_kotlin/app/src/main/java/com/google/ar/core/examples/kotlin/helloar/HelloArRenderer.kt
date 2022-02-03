@@ -42,6 +42,7 @@ import com.google.ar.core.examples.java.common.samplerender.Shader
 import com.google.ar.core.examples.java.common.samplerender.Texture
 import com.google.ar.core.examples.java.common.samplerender.VertexBuffer
 import com.google.ar.core.examples.java.common.samplerender.arcore.BackgroundRenderer
+import com.google.ar.core.examples.java.common.samplerender.arcore.LineRenderer
 import com.google.ar.core.examples.java.common.samplerender.arcore.PlaneRenderer
 import com.google.ar.core.examples.java.common.samplerender.arcore.SpecularCubemapFilter
 import com.google.ar.core.exceptions.CameraNotAvailableException
@@ -91,6 +92,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
   lateinit var render: SampleRender
   lateinit var planeRenderer: PlaneRenderer
   lateinit var backgroundRenderer: BackgroundRenderer
+  lateinit var lineRenderer: LineRenderer
   lateinit var virtualSceneFramebuffer: Framebuffer
   var hasSetTextureNames = false
 
@@ -147,6 +149,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
     // Prepare the rendering objects.
     // This involves reading shaders and 3D model files, so may throw an IOException.
     try {
+      /*
       planeRenderer = PlaneRenderer(render)
       backgroundRenderer = BackgroundRenderer(render)
       virtualSceneFramebuffer = Framebuffer(render, /*width=*/ 1, /*height=*/ 1)
@@ -185,6 +188,10 @@ class HelloArRenderer(val activity: HelloArActivity) :
         buffer
       )
       GLError.maybeThrowGLException("Failed to populate DFG texture", "glTexImage2D")
+      */
+
+      backgroundRenderer = BackgroundRenderer(render)
+      virtualSceneFramebuffer = Framebuffer(render, /*width=*/ 1, /*height=*/ 1)
 
       // Point cloud
       pointCloudShader =
@@ -204,7 +211,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
       pointCloudMesh =
         Mesh(render, Mesh.PrimitiveMode.POINTS, /*indexBuffer=*/ null, pointCloudVertexBuffers)
 
-      // Virtual object to render (ARCore pawn)
+      /*// Virtual object to render (ARCore pawn)
       virtualObjectAlbedoTexture =
         Texture.createFromAsset(
           render,
@@ -239,7 +246,9 @@ class HelloArRenderer(val activity: HelloArActivity) :
           .setTexture("u_AlbedoTexture", virtualObjectAlbedoTexture)
           .setTexture("u_RoughnessMetallicAmbientOcclusionTexture", virtualObjectPbrTexture)
           .setTexture("u_Cubemap", cubemapFilter.filteredCubemapTexture)
-          .setTexture("u_DfgTexture", dfgTexture)
+          .setTexture("u_DfgTexture", dfgTexture)*/
+
+      lineRenderer = LineRenderer(render)
     } catch (e: IOException) {
       Log.e(TAG, "Failed to read a required asset file", e)
       showError("Failed to read a required asset file: $e")
@@ -367,6 +376,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
       render.draw(pointCloudMesh, pointCloudShader)
     }
 
+    /*
     // Visualize planes.
     planeRenderer.drawPlanes(
       render,
@@ -379,9 +389,11 @@ class HelloArRenderer(val activity: HelloArActivity) :
 
     // Update lighting parameters in the shader
     updateLightEstimation(frame.lightEstimate, viewMatrix)
+    */
 
     // Visualize anchors created by touch.
     render.clear(virtualSceneFramebuffer, 0f, 0f, 0f, 0f)
+    /*
     for ((anchor, trackable) in
       wrappedAnchors.filter { it.anchor.trackingState == TrackingState.TRACKING }) {
       // Get the current pose of an Anchor in world space. The Anchor pose is updated
@@ -405,10 +417,18 @@ class HelloArRenderer(val activity: HelloArActivity) :
         }
       virtualObjectShader.setTexture("u_AlbedoTexture", texture)
       render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer)
-    }
+    }*/
+
+    // Calculate model/view/projection matrices
+    //Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
+    //Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
+
+    //lineRenderer.lineShader.setMat4("u_ModelView", modelViewMatrix)
+    lineRenderer.lineShader.setMat4("u_MVPMatrix", modelViewProjectionMatrix)
+    lineRenderer.drawLine(render)
 
     // Compose the virtual scene with the background.
-    backgroundRenderer.drawVirtualScene(render, virtualSceneFramebuffer, Z_NEAR, Z_FAR)
+    //backgroundRenderer.drawVirtualScene(render, virtualSceneFramebuffer, Z_NEAR, Z_FAR)
   }
 
   /** Checks if we detected at least one plane. */

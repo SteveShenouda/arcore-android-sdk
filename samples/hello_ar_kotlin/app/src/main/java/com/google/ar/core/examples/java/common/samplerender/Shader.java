@@ -576,7 +576,7 @@ public class Shader implements Closeable {
     }
   }
 
-  private int getUniformLocation(String name) {
+  public int getUniformLocation(String name) {
     Integer locationObject = uniformLocations.get(name);
     if (locationObject != null) {
       return locationObject;
@@ -588,6 +588,15 @@ public class Shader implements Closeable {
     }
     uniformLocations.put(name, Integer.valueOf(location));
     uniformNames.put(Integer.valueOf(location), name);
+    return location;
+  }
+
+  public int getAttribLocation(String name) {
+    int location = GLES30.glGetAttribLocation(programId, name);
+    GLError.maybeThrowGLException("Failed to find attrib", "glGetAttribLocation");
+    if (location == -1) {
+      throw new IllegalArgumentException("Shader attrib does not exist: " + name);
+    }
     return location;
   }
 
