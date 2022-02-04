@@ -23,9 +23,9 @@ public class LineRenderer {
     static final int COORDS_PER_VERTEX = 3;
 
     private static float[] lineCoords = {
-            0.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            0.5f, -1f, 0.0f
+            0f, 0.1f, 0.0f,
+            -0.1f, -0.1f, 0.0f,
+            0.1f, -0.1f, 0.0f
     };
 
     // Set color with red, green, blue and alpha (opacity) values
