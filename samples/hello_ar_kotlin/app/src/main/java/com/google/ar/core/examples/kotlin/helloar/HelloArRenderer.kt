@@ -393,7 +393,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
 
     // Visualize anchors created by touch.
     render.clear(virtualSceneFramebuffer, 0f, 0f, 0f, 0f)
-    /*
+
     for ((anchor, trackable) in
       wrappedAnchors.filter { it.anchor.trackingState == TrackingState.TRACKING }) {
       // Get the current pose of an Anchor in world space. The Anchor pose is updated
@@ -404,6 +404,11 @@ class HelloArRenderer(val activity: HelloArActivity) :
       Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
       Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
 
+      //Draw line
+      lineRenderer.lineShader.setMat4("u_MVPMatrix", modelViewProjectionMatrix)
+      lineRenderer.drawLine(render, virtualSceneFramebuffer)
+    }
+      /*
       // Update shader properties and draw
       virtualObjectShader.setMat4("u_ModelView", modelViewMatrix)
       virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
@@ -424,11 +429,11 @@ class HelloArRenderer(val activity: HelloArActivity) :
     //Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
 
     //lineRenderer.lineShader.setMat4("u_ModelView", modelViewMatrix)
-    lineRenderer.lineShader.setMat4("u_MVPMatrix", modelViewProjectionMatrix)
-    lineRenderer.drawLine(render)
+    //lineRenderer.lineShader.setMat4("u_MVPMatrix", modelViewProjectionMatrix)
+    //lineRenderer.drawLine(render)
 
     // Compose the virtual scene with the background.
-    //backgroundRenderer.drawVirtualScene(render, virtualSceneFramebuffer, Z_NEAR, Z_FAR)
+    backgroundRenderer.drawVirtualScene(render, virtualSceneFramebuffer, Z_NEAR, Z_FAR)
   }
 
   /** Checks if we detected at least one plane. */

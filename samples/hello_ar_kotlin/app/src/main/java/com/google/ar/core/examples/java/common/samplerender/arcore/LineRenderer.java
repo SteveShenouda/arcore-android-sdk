@@ -2,6 +2,7 @@ package com.google.ar.core.examples.java.common.samplerender.arcore;
 
 import android.opengl.GLES30;
 
+import com.google.ar.core.examples.java.common.samplerender.Framebuffer;
 import com.google.ar.core.examples.java.common.samplerender.IndexBuffer;
 import com.google.ar.core.examples.java.common.samplerender.Mesh;
 import com.google.ar.core.examples.java.common.samplerender.SampleRender;
@@ -23,13 +24,15 @@ public class LineRenderer {
 
     private static float[] lineCoords = {
             0.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f
+            1.0f, 0.0f, 0.0f,
+            0.5f, -1f, 0.0f
     };
 
     // Set color with red, green, blue and alpha (opacity) values
     private static float color[] = {
-            0.0f, 0.0f, 0.0f, 1.0f,
-            .8f, .8f, 0f, 1.0f
+            0.0f, 0.0f, 0.0f,
+            .8f, .8f, 0f,
+            .8f, .8f, 0f,
     };
 
     private static final int vertexCount = lineCoords.length / COORDS_PER_VERTEX;
@@ -42,7 +45,7 @@ public class LineRenderer {
             ByteBuffer.allocateDirect(COORDS_BUFFER_SIZE).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
     private static final FloatBuffer colorBuffer =
-            ByteBuffer.allocateDirect(32).order(ByteOrder.nativeOrder()).asFloatBuffer();
+            ByteBuffer.allocateDirect(COORDS_BUFFER_SIZE).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
     static {
         lineCoordsBuffer.put(lineCoords);
@@ -70,19 +73,19 @@ public class LineRenderer {
                         .setDepthWrite(false);
 
         // Set program handles. These will later be used to pass in values to the program.
-        mMVPMatrixHandle = lineShader.getUniformLocation("u_MVPMatrix");
-        mPositionHandle = lineShader.getAttribLocation("a_Position");
-        mColorHandle = lineShader.getAttribLocation("a_Color");
+//        mMVPMatrixHandle = lineShader.getUniformLocation("u_MVPMatrix");
+//        mPositionHandle = lineShader.getAttribLocation("a_Position");
+//        mColorHandle = lineShader.getAttribLocation("a_Color");
 
         VertexBuffer[] vertexBuffers = {
                 new VertexBuffer(render, 3, lineCoordsBuffer),
-                new VertexBuffer(render, 4, colorBuffer),
+                new VertexBuffer(render, 3, colorBuffer),
         };
-        mesh = new Mesh(render, Mesh.PrimitiveMode.LINES, null, vertexBuffers);
+        mesh = new Mesh(render, Mesh.PrimitiveMode.TRIANGLES, null, vertexBuffers);
     }
 
-    public void drawLine(SampleRender render) {
-        render.draw(mesh, lineShader);
+    public void drawLine(SampleRender render, Framebuffer framebuffer) {
+        render.draw(mesh, lineShader, framebuffer);
 /*        render.draw(lineShader);
 
         // Pass in the position information
@@ -105,36 +108,5 @@ public class LineRenderer {
 
         //Draw the Line
         GLES30.glDrawArrays(GLES30.GL_LINES, 0, vertexCount);*/
-
-/*        for(Line line : listOfArrays) {
-            line.draw(gl);
-        }
-        isFirst = true;*/
     }
-
-/*    public void setLineCoordinates(float mPreviousX
-            , float mPreviousY, float x, float y) {
-        // TODO Auto-generated method stub
-
-        float lineCoords[] = new float[6];
-        lineCoords[0] = (float) (mPreviousX * 2.0 / WIDTH - 1.0);
-        lineCoords[1] = (float) (mPreviousY * -2.0 / HEIGHT + 1.0);
-        lineCoords[2] = 0.0f;
-        lineCoords[3] = (float) (x * 2.0 / WIDTH - 1.0);
-        lineCoords[4] = (float) (y * -2.0 / HEIGHT + 1.0);
-        lineCoords[5] = 0.0f;
-
-        bufferOfArrays.add(new Line(lineCoords));
-
-        if(isFirst) {
-            isFirst = false;
-            listOfArrays.addAll(bufferOfArrays);
-            view.requestRender();
-        }
-
-    }
-
-    public void setFirst(boolean isFirst) {
-        this.isFirst = isFirst;
-    }*/
 }
