@@ -395,7 +395,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
     render.clear(virtualSceneFramebuffer, 0f, 0f, 0f, 0f)
 
     for ((anchor, trackable) in
-      wrappedAnchors.filter { it.anchor.trackingState == TrackingState.TRACKING }) {
+      wrappedAnchors.filter { true }) {
       // Get the current pose of an Anchor in world space. The Anchor pose is updated
       // during calls to session.update() as ARCore refines its estimate of the world.
       anchor.pose.toMatrix(modelMatrix, 0)
@@ -531,7 +531,7 @@ class HelloArRenderer(val activity: HelloArActivity) :
     if (firstHitResult != null) {
       // Cap the number of objects created. This avoids overloading both the
       // rendering system and ARCore.
-      if (wrappedAnchors.size >= 20) {
+      if (wrappedAnchors.size >= 100) {
         wrappedAnchors[0].anchor.detach()
         wrappedAnchors.removeAt(0)
       }

@@ -28,8 +28,9 @@ import java.util.concurrent.BlockingQueue;
  * render thread.
  */
 public final class TapHelper implements OnTouchListener {
-  private final GestureDetector gestureDetector;
+  //private final GestureDetector gestureDetector;
   private final BlockingQueue<MotionEvent> queuedSingleTaps = new ArrayBlockingQueue<>(16);
+  private long timeTilNextRender = System.currentTimeMillis() + 50;
 
   /**
    * Creates the tap helper.
@@ -37,7 +38,7 @@ public final class TapHelper implements OnTouchListener {
    * @param context the application's context.
    */
   public TapHelper(Context context) {
-    gestureDetector =
+/*    gestureDetector =
         new GestureDetector(
             context,
             new GestureDetector.SimpleOnGestureListener() {
@@ -52,7 +53,7 @@ public final class TapHelper implements OnTouchListener {
               public boolean onDown(MotionEvent e) {
                 return true;
               }
-            });
+            });*/
   }
 
   /**
@@ -69,8 +70,12 @@ public final class TapHelper implements OnTouchListener {
       switch(motionEvent.getAction()) {
           case MotionEvent.ACTION_DOWN:
           case MotionEvent.ACTION_MOVE:
-          case MotionEvent.ACTION_UP:
-              queuedSingleTaps.offer(motionEvent);
+          //case MotionEvent.ACTION_UP:
+              long currentTimeStamp = System.currentTimeMillis();
+              if(currentTimeStamp > timeTilNextRender) {
+                  timeTilNextRender = currentTimeStamp + 50;
+                  queuedSingleTaps.offer(motionEvent);
+              }
               break;
       }
       return true;
