@@ -66,6 +66,14 @@ public final class TapHelper implements OnTouchListener {
 
   @Override
   public boolean onTouch(View view, MotionEvent motionEvent) {
-    return gestureDetector.onTouchEvent(motionEvent);
+      switch(motionEvent.getAction()) {
+          case MotionEvent.ACTION_DOWN:
+          case MotionEvent.ACTION_MOVE:
+          case MotionEvent.ACTION_UP:
+              queuedSingleTaps.offer(motionEvent);
+              break;
+      }
+      return true;
+    //return gestureDetector.onTouchEvent(motionEvent);
   }
 }
