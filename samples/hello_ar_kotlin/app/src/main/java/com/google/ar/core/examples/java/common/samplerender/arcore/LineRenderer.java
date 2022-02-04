@@ -22,11 +22,7 @@ public class LineRenderer {
     static final int NUMBER_OF_BYTES_IN_FLOAT = 4;
     static final int COORDS_PER_VERTEX = 3;
 
-    private static float[] lineCoords = {
-            0f, 0.1f, 0.0f,
-            -0.1f, -0.1f, 0.0f,
-            0.1f, -0.1f, 0.0f
-    };
+    private static float lineCoords[] = new float[364 * 3];
 
     // Set color with red, green, blue and alpha (opacity) values
     private static float color[] = {
@@ -41,15 +37,12 @@ public class LineRenderer {
     // components_per_vertex * number_of_vertices * float_size
     private static final int COORDS_BUFFER_SIZE = COORDS_PER_VERTEX * vertexCount * NUMBER_OF_BYTES_IN_FLOAT;
 
-    private static final FloatBuffer lineCoordsBuffer =
-            ByteBuffer.allocateDirect(COORDS_BUFFER_SIZE).order(ByteOrder.nativeOrder()).asFloatBuffer();
+    private static FloatBuffer lineCoordsBuffer;
 
     private static final FloatBuffer colorBuffer =
             ByteBuffer.allocateDirect(COORDS_BUFFER_SIZE).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
     static {
-        lineCoordsBuffer.put(lineCoords);
-        lineCoordsBuffer.position(0);
         colorBuffer.put(color);
         colorBuffer.position(0);
     }
@@ -77,11 +70,29 @@ public class LineRenderer {
 //        mPositionHandle = lineShader.getAttribLocation("a_Position");
 //        mColorHandle = lineShader.getAttribLocation("a_Color");
 
+        lineCoords[0] = 0;
+        lineCoords[1] = 0;
+        lineCoords[2] = 0;
+
+        for(int i =1; i <364; i++){
+            lineCoords[(i * 3)+ 0] = (float) (0.05 * Math.cos((3.14/180) * (float)i ));
+            lineCoords[(i * 3)+ 1] = (float) (0.05 * Math.sin((3.14/180) * (float)i ));
+            lineCoords[(i * 3)+ 2] = 0;
+        }
+
+        int vertexCount = lineCoords.length / COORDS_PER_VERTEX;
+        int bufferSize = COORDS_PER_VERTEX * vertexCount * NUMBER_OF_BYTES_IN_FLOAT;
+
+        lineCoordsBuffer =
+                ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        lineCoordsBuffer.put(lineCoords);
+        lineCoordsBuffer.position(0);
+
         VertexBuffer[] vertexBuffers = {
                 new VertexBuffer(render, 3, lineCoordsBuffer),
                 new VertexBuffer(render, 3, colorBuffer),
         };
-        mesh = new Mesh(render, Mesh.PrimitiveMode.TRIANGLES, null, vertexBuffers);
+        mesh = new Mesh(render, Mesh.PrimitiveMode.TRIANGLE_FAN, null, vertexBuffers);
     }
 
     public void drawLine(SampleRender render, Framebuffer framebuffer) {
